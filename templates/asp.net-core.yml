@@ -1,17 +1,81 @@
-# ASP.NET Core
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+Skip to content
+Search or jump to…
+Pull requests
+Issues
+Codespaces
+Marketplace
+Explore
+ 
+@ahmadhassanSystemsltd 
+ahmadhassanSystemsltd
+/
+azure-pipelines-yaml
+Public
+forked from microsoft/azure-pipelines-yaml
+Cannot fork because you own this repository and are not a member of any organizations.
+Code
+Pull requests
+Actions
+Projects
+Wiki
+Security
+Insights
+Settings
+azure-pipelines-yaml/templates/asp.net.yml
+
+Crystal Tenn change {{ defaultBranch }} to {{ branch }}
+Latest commit 561dd81 on Jan 12, 2021
+ History
+ 4 contributors
+@davidstaheli@vtbassmatt@KetchupOnMyKetchup@jmyersmsft
+34 lines (27 sloc)  881 Bytes
+
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
 
 trigger:
 - {{ branch }}
 
 pool:
-  {{ pool }}
+  vmImage: 'windows-latest'
 
 variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
 steps:
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: VSTest@2
+  inputs:
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+Footer
+© 2023 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+azure-pipelines-yaml/asp.net.yml at master · ahmadhassanSystemsltd/azure-pipelines-yaml
